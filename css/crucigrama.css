@@ -1,0 +1,165 @@
+:root {
+  --cell-size: clamp(26px, 4.5vmin, 40px);
+}
+
+body {
+  font-family: "Exo 2", sans-serif;
+  background: linear-gradient(135deg, #e5f0ff 0%, #f0e5ff 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  user-select: none;
+}
+
+.game-container {
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  gap: 30px;
+  max-width: 95%;
+  position: relative;
+}
+
+.crossword {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  gap: 2px;
+}
+
+input.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  text-transform: uppercase;
+  text-align: center;
+  font-weight: bold;
+  font-size: calc(var(--cell-size) * 0.5);
+  border: 1px solid #c8b3e8;
+  border-radius: 4px;
+  background-color: #fafaf8;
+  color: #5a3a7d;
+  transition: background-color 0.3s;
+}
+
+input.cell:focus {
+  outline-color: #7c3aed;
+  background-color: #f0e5ff;
+}
+
+input.cell::placeholder {
+  color: rgba(90, 58, 125, 0.35);
+  font-size: 0.55em;
+  text-align: left;
+  padding-left: 4px;
+}
+
+input.cell.correct {
+  background-color: #b088ff;
+  color: #fff;
+}
+
+input.cell.incorrect {
+  background-color: #ff9999;
+  color: #fff;
+}
+
+.block {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background-color: #333;
+  border-radius: 4px;
+}
+
+.word-list {
+  min-width: 180px;
+  text-align: left;
+}
+
+.word-list h2 {
+  font-size: 20px;
+  color: #7c3aed;
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.word-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.word-list li {
+  padding: 5px 0;
+  font-weight: bold;
+  color: #5a3a7d;
+}
+
+.found-word {
+  text-decoration: line-through;
+  color: #d4a5ff;
+}
+
+#completion-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s, visibility 0.4s;
+  border-radius: 15px;
+}
+
+#completion-modal.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+#completion-modal h2 {
+  color: #7c3aed;
+}
+
+#completion-modal p {
+  color: #5a3a7d;
+}
+
+#new-game-btn {
+  padding: 12px 25px;
+  font-size: 18px;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#new-game-btn:hover {
+  background: #6d28d9;
+}
+
+.left-panel h1 {
+  margin: 0 0 12px 0;
+  color: #7c3aed;
+  font-size: clamp(22px, 5vw, 28px);
+  text-align: center;
+}
+
+.error-msg {
+  color: #d32f2f;
+  padding: 12px;
+}
+
+@media (max-width: 800px) {
+  .game-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}

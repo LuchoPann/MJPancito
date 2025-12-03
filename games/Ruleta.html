@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ruleta Dinámica - Primeros Auxilios Psicológicos</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/ruleta.css" />
+  </head>
+
+  <body>
+    <div
+      class="game-container rounded-2xl shadow-lg p-6 md:p-10 max-w-6xl relative overflow-hidden flex flex-wrap justify-center gap-8"
+    >
+      <!-- RULETA SECTION -->
+      <div class="ruleta-wrapper flex flex-col items-center justify-center">
+        <h1 class="ruleta-title mb-6">🧠 Ruleta del Modelo ABCDE</h1>
+        <div class="ruleta-container relative">
+          <canvas id="ruleta" class="ruleta-canvas"></canvas>
+          <div class="flecha">▶</div>
+        </div>
+        <button id="girarBtn" class="btn-girar">Girar Ruleta</button>
+        <p id="resultado" class="resultado-text"></p>
+      </div>
+
+      <!-- PANEL CONTROL SECTION -->
+      <div class="control-panel">
+        <h2 class="panel-title">⚙️ Opciones de la Ruleta</h2>
+        <textarea
+          id="listaOpciones"
+          placeholder="Escribe una opción por línea. Ejemplo:&#10;💡 Caso 1&#10;💡 Caso 2&#10;💡 Caso 3"
+          class="textarea-opciones"
+        ></textarea>
+        <button id="guardarBtn" class="btn-primary">💾 Guardar Cambios</button>
+        <button id="borrarBtn" class="btn-danger">🗑️ Borrar Todo</button>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay">
+      <div class="modal-content">
+        <span id="cerrarModal" class="modal-close">&times;</span>
+        <h2 id="tituloModal" class="modal-title"></h2>
+        <div id="mensajeModal"></div>
+      </div>
+    </div>
+
+    <script src="../js/ruleta.js"></script>
+  </body>
+</html>

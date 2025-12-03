@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ruleta Dinámica - Primeros Auxilios Psicológicos</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: radial-gradient(circle, #2a2a2a, #000);
+        color: #fff;
+        font-family: "Poppins", sans-serif;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .container {
+        display: flex;
+        width: 95vw;
+        max-width: 1300px;
+        height: 90vh;
+        gap: 2vw;
+      }
+
+      /* Lado izquierdo: ruleta */
+      .ruleta-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: clamp(1.4rem, 2.5vw, 2.5rem);
+        margin-bottom: 1.5vh;
+        color: #ffffff;
+      }
+
+      .ruleta-container {
+        position: relative;
+      }
+
+      canvas {
+        display: block;
+        width: min(70vw, 500px);
+        height: auto;
+        border-radius: 50%;
+        background: #222;
+        box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+      }
+
+      .flecha {
+        position: absolute;
+        right: -35px;
+        top: 50%;
+        transform: translateY(-50%) rotate(180deg);
+        font-size: clamp(1.5rem, 3vw, 3rem);
+        color: #ff5252;
+        text-shadow: 0 0 10px rgba(255, 82, 82, 0.8);
+      }
+
+      button {
+        background: #00c853;
+        border: none;
+        color: white;
+        padding: 0.8em 2em;
+        border-radius: 10px;
+        font-size: clamp(1rem, 1.5vw, 1.2rem);
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 1em;
+      }
+
+      button:hover {
+        background: #00e676;
+      }
+
+      #resultado {
+        margin-top: 2vh;
+        font-weight: bold;
+        font-size: clamp(1rem, 2vw, 1.4rem);
+      }
+
+      /* Panel derecho */
+      .panel {
+        flex: 0.8;
+        background: #1b1b1b;
+        border-radius: 20px;
+        padding: 2em;
+        box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .panel h2 {
+        color: #00e676;
+        text-align: center;
+        margin-bottom: 1em;
+      }
+
+      textarea {
+        width: 100%;
+        height: 60%;
+        background: #111;
+        border: 1px solid #00e676;
+        color: #fff;
+        border-radius: 10px;
+        padding: 1em;
+        font-size: 1rem;
+        resize: none;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .panel button {
+        width: 100%;
+        margin-top: 1em;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        justify-content: center;
+        align-items: center;
+        padding: 2vw;
+      }
+
+      .modal-content {
+        background: #1e1e1e;
+        border-radius: 20px;
+        padding: 4vh 4vw;
+        color: #fff;
+        max-width: 800px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        animation: fadeIn 0.3s ease;
+        line-height: 1.6;
+        text-align: left;
+        font-size: clamp(1rem, 1.8vw, 1.3rem);
+      }
+
+      .modal-content h2 {
+        text-align: center;
+        margin-bottom: 2vh;
+        font-size: clamp(1.2rem, 2vw, 2rem);
+        color: #00e676;
+      }
+
+      .cerrar {
+        float: right;
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        cursor: pointer;
+        color: #f44336;
+        transition: 0.3s;
+      }
+
+      .cerrar:hover {
+        color: #ff7777;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .modal-content::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .modal-content::-webkit-scrollbar-thumb {
+        background: #00e676;
+        border-radius: 4px;
+      }
+
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+          align-items: center;
+          height: auto;
+        }
+        .panel {
+          width: 90%;
+          height: auto;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- LADO IZQUIERDO -->
+      <div class="ruleta-section">
+        <h1>🧠 Ruleta del Modelo ABCDE</h1>
+        <div class="ruleta-container">
+          <canvas id="ruleta"></canvas>
+          <div class="flecha">▶</div>
+        </div>
+        <button id="girarBtn">Girar</button>
+        <p id="resultado"></p>
+      </div>
+
+      <!-- PANEL DERECHO -->
+      <div class="panel">
+        <h2>⚙️ Opciones de la Ruleta</h2>
+        <textarea
+          id="listaOpciones"
+          placeholder="Escribe una opción por línea. Ejemplo:&#10;💡 Caso 1&#10;💡 Caso 2&#10;💡 Caso 3"
+        ></textarea>
+        <button id="guardarBtn">💾 Guardar Cambios</button>
+        <button id="borrarBtn" style="background: #f44336">
+          🗑️ Borrar Todo
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span id="cerrarModal" class="cerrar">&times;</span>
+        <h2 id="tituloModal"></h2>
+        <div id="mensajeModal"></div>
+      </div>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("ruleta");
+      const ctx = canvas.getContext("2d");
+      const btnGirar = document.getElementById("girarBtn");
+      const resultado = document.getElementById("resultado");
+      const modal = document.getElementById("modal");
+      const tituloModal = document.getElementById("tituloModal");
+      const mensajeModal = document.getElementById("mensajeModal");
+      const cerrarModal = document.getElementById("cerrarModal");
+      const listaOpciones = document.getElementById("listaOpciones");
+      const btnGuardar = document.getElementById("guardarBtn");
+      const btnBorrar = document.getElementById("borrarBtn");
+
+      cerrarModal.addEventListener(
+        "click",
+        () => (modal.style.display = "none")
+      );
+      window.addEventListener("click", (e) => {
+        if (e.target === modal) modal.style.display = "none";
+      });
+
+      const tamano = Math.min(window.innerWidth * 0.6, 500);
+      canvas.width = tamano;
+      canvas.height = tamano;
+
+      const colores = ["#00bcd4", "#8bc34a", "#ffc107", "#e91e63", "#9c27b0"];
+      let anguloActual = 0;
+      let girando = false;
+      let premios = [];
+
+      // === Cargar datos del localStorage ===
+      function cargarDatos() {
+        const guardados = localStorage.getItem("opcionesRuleta");
+        if (guardados) {
+          premios = JSON.parse(guardados);
+        } else {
+          premios = ["💡 Caso 1", "💡 Caso 2", "💡 Caso 3"];
+        }
+        listaOpciones.value = premios.join("\n");
+        dibujarRuleta();
+      }
+
+      // === Guardar datos ===
+      function guardarDatos() {
+        const texto = listaOpciones.value.trim();
+        premios = texto
+          .split("\n")
+          .map((t) => t.trim())
+          .filter((t) => t !== "");
+        localStorage.setItem("opcionesRuleta", JSON.stringify(premios));
+        dibujarRuleta();
+      }
+
+      // === Borrar todo ===
+      btnBorrar.addEventListener("click", () => {
+        if (confirm("¿Seguro que deseas borrar todas las opciones?")) {
+          premios = [];
+          listaOpciones.value = "";
+          localStorage.removeItem("opcionesRuleta");
+          dibujarRuleta();
+        }
+      });
+
+      btnGuardar.addEventListener("click", guardarDatos);
+
+      function dibujarRuleta() {
+        ctx.clearRect(0, 0, tamano, tamano);
+        if (premios.length === 0) {
+          ctx.fillStyle = "#fff";
+          ctx.font = "20px Poppins";
+          ctx.textAlign = "center";
+          ctx.fillText("Sin opciones", tamano / 2, tamano / 2);
+          return;
+        }
+
+        const total = premios.length;
+        const anguloPorSector = (2 * Math.PI) / total;
+        const radio = tamano / 2;
+
+        for (let i = 0; i < total; i++) {
+          const inicio = i * anguloPorSector;
+          const fin = inicio + anguloPorSector;
+
+          ctx.beginPath();
+          ctx.moveTo(radio, radio);
+          ctx.arc(radio, radio, radio, inicio, fin);
+          ctx.fillStyle = colores[i % colores.length];
+          ctx.fill();
+
+          ctx.save();
+          ctx.translate(radio, radio);
+          ctx.rotate(inicio + anguloPorSector / 2);
+          ctx.textAlign = "right";
+          ctx.fillStyle = "#fff";
+          ctx.font = `${tamano / 18}px Poppins`;
+          ctx.fillText(premios[i], radio - 30, 5);
+          ctx.restore();
+        }
+      }
+
+      btnGirar.addEventListener("click", () => {
+        if (girando || premios.length === 0) return;
+        girando = true;
+        resultado.textContent = "";
+
+        const vueltas = 5 + Math.random() * 5;
+        const destino = anguloActual + vueltas * 2 * Math.PI;
+        const duracion = 4000;
+        const inicio = performance.now();
+
+        function animarRuleta(tiempo) {
+          const progreso = Math.min((tiempo - inicio) / duracion, 1);
+          const easeOut = 1 - Math.pow(1 - progreso, 3);
+          anguloActual = destino * easeOut;
+          ctx.save();
+          ctx.translate(tamano / 2, tamano / 2);
+          ctx.rotate(anguloActual);
+          ctx.translate(-tamano / 2, -tamano / 2);
+          dibujarRuleta();
+          ctx.restore();
+
+          if (progreso < 1) requestAnimationFrame(animarRuleta);
+          else {
+            girando = false;
+            mostrarResultado();
+          }
+        }
+
+        requestAnimationFrame(animarRuleta);
+      });
+
+      function mostrarResultado() {
+        const total = premios.length;
+        const anguloPorSector = (2 * Math.PI) / total;
+        const anguloFinal =
+          (2 * Math.PI - (anguloActual % (2 * Math.PI))) % (2 * Math.PI);
+        const indiceGanador = Math.floor(anguloFinal / anguloPorSector);
+        const premio = premios[indiceGanador];
+        resultado.textContent = `Resultado: ${premio}`;
+
+        tituloModal.textContent = premio;
+        mensajeModal.innerHTML = `Mensaje para <b>${premio}</b>. Puedes personalizar esta parte si lo deseas.`;
+        modal.style.display = "flex";
+      }
+
+      // Cargar al inicio
+      cargarDatos();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sopa de Letras Aleatoria</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/sopita.css" />
+  </head>
+  <body>
+    <div
+      class="game-container bg-white rounded-2xl shadow-lg p-6 md:p-10 max-w-6xl relative overflow-hidden flex flex-wrap justify-center gap-8"
+    >
+      <div class="grid-wrapper flex justify-center items-center">
+        <div id="word-search-grid"></div>
+      </div>
+      <div class="word-list-container">
+        <h1
+          class="text-2xl md:text-3xl font-bold text-blue-600 mt-0 border-b-2 border-gray-200 pb-2 mb-4"
+        >
+          Encuentra:
+        </h1>
+        <div id="word-list"></div>
+      </div>
+
+      <div id="completion-modal">
+        <h2 class="text-3xl md:text-5xl font-bold text-green-500">
+          ¡Felicidades!
+        </h2>
+        <p class="text-lg text-gray-700 mt-4">Completaste la sopa de letras.</p>
+        <button
+          id="new-game-btn"
+          class="mt-6 px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+        >
+          Jugar de Nuevo
+        </button>
+      </div>
+    </div>
+
+    <script src="../js/sopita.js"></script>
+  </body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mis Minijuegos</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body
+    class="bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 min-h-screen p-4 transition-colors duration-200"
+  >
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <header class="mb-12 text-center">
+        <div class="flex items-center justify-between mb-4">
+          <div></div>
+          <div class="flex gap-3">
+            <!-- Botón Estadísticas -->
+            <button
+              onclick="abrirEstadisticas()"
+              class="bg-white hover:bg-pink-50 hover:shadow-lg p-3 rounded-lg transition-all duration-200 text-2xl shadow-md"
+              title="Estadísticas"
+            >
+              📊
+            </button>
+            <!-- Botón Configuración -->
+            <button
+              onclick="abrirConfiguracion()"
+              class="bg-white hover:bg-purple-50 hover:shadow-lg p-3 rounded-lg transition-all duration-200 text-2xl shadow-md"
+              title="Configuración"
+            >
+              ⚙️
+            </button>
+          </div>
+        </div>
+        <h1 class="text-5xl md:text-6xl font-bold text-purple-600 mb-2">
+          🎮 Centro de Juegos
+        </h1>
+        <p class="text-gray-600 text-lg">
+          Aprende y diviértete con nuestros minijuegos educativos
+        </p>
+      </header>
+
+      <!-- Sección Minijuegos -->
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+          <span class="text-2xl mr-3">🎯</span> Minijuegos
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Sopa de Letras -->
+          <a
+            href="games/Sopita.html"
+            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-blue-300"
+          >
+            <div class="text-4xl mb-3">🔤</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Sopa de Letras</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              Encuentra todas las palabras escondidas en la cuadrícula
+            </p>
+            <div class="text-blue-500 font-semibold text-sm">Jugar →</div>
+          </a>
+
+          <!-- Crucigrama -->
+          <a
+            href="games/Crucigrama.html"
+            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-purple-300"
+          >
+            <div class="text-4xl mb-3">🧩</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Crucigrama</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              Completa el crucigrama resolviendo pistas y palabras cruzadas
+            </p>
+            <div class="text-purple-500 font-semibold text-sm">Jugar →</div>
+          </a>
+
+          <!-- Ruleta -->
+          <a
+            href="games/Ruleta.html"
+            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-pink-300"
+          >
+            <div class="text-4xl mb-3">🎡</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Ruleta</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              Gira la ruleta y ♫ prueba tu suerte conmigo, pruebate a la suerte
+              ♫
+            </p>
+            <div class="text-pink-500 font-semibold text-sm">Jugar →</div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Sección Herramientas -->
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+          <span class="text-2xl mr-3">🛠️</span> Herramientas
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Generador de Cuestionarios -->
+          <button
+            onclick="proximamente(event)"
+            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-green-300 text-left hover:bg-green-50"
+          >
+            <div class="text-4xl mb-3">📝</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">
+              Generador de Cuestionarios
+            </h3>
+            <p class="text-gray-600 text-sm mb-4">
+              Crea cuestionarios personalizados para evaluar conocimientos
+            </p>
+            <div class="text-green-500 font-semibold text-sm">
+              Próximamente →
+            </div>
+          </button>
+
+          <!-- Flashcards -->
+          <button
+            onclick="proximamente(event)"
+            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-yellow-300 text-left hover:bg-yellow-50"
+          >
+            <div class="text-4xl mb-3">🗂️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Flashcards</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              Estudia con tarjetas interactivas y mejora tu memoria
+            </p>
+            <div class="text-yellow-500 font-semibold text-sm">
+              Próximamente →
+            </div>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Modal Próximamente -->
+    <div
+      id="proximamenteModal"
+      class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full transform transition-all"
+      >
+        <div class="text-center">
+          <div class="text-6xl mb-4">⏰</div>
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">Próximamente</h2>
+          <p class="text-gray-600 mb-6">
+            Esta función está en desarrollo. ¡Vuelve pronto para verla en
+            acción!
+          </p>
+          <button
+            onclick="cerrarProximamente()"
+            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide Panel -->
+    <div
+      id="slidePanel"
+      class="fixed inset-y-0 right-0 w-full max-w-md bg-gradient-to-br from-white to-pink-50 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-40 overflow-y-auto"
+    >
+      <div class="p-6 md:p-8">
+        <!-- Header del Panel -->
+        <div class="flex items-center justify-between mb-6">
+          <h2 id="panelTitle" class="text-2xl font-bold text-gray-800">
+            Perfil
+          </h2>
+          <button
+            onclick="cerrarSlide()"
+            class="text-gray-500 hover:text-gray-700 text-2xl transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- Contenido del Panel -->
+        <div id="panelContent" class="space-y-6">
+          <!-- Default: Perfil -->
+          <div id="perfilContent" class="space-y-6">
+            <!-- Avatar -->
+            <div class="text-center">
+              <div class="text-6xl mb-4">👤</div>
+              <h3 class="text-xl font-bold text-gray-800">Usuario</h3>
+              <p class="text-gray-600 text-sm">usuario@ejemplo.com</p>
+            </div>
+
+            <!-- Información de Perfil -->
+            <div class="border-t border-gray-200 pt-6">
+              <h4 class="text-lg font-semibold text-gray-800 mb-4">
+                Información Personal
+              </h4>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre Completo
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Tu nombre"
+                    class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Correo Electrónico
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="tu@email.com"
+                    class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Preferencias -->
+            <div class="border-t border-gray-200 pt-6">
+              <h4 class="text-lg font-semibold text-gray-800 mb-4">
+                Preferencias
+              </h4>
+              <div class="space-y-3">
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked
+                    class="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                  />
+                  <span class="ml-3 text-gray-700">
+                    Notificaciones por email
+                  </span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked
+                    class="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                  />
+                  <span class="ml-3 text-gray-700">
+                    Mostrar perfil públicamente
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="border-t border-gray-200 pt-6 space-y-3">
+              <button
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Guardar Cambios
+              </button>
+              <button
+                class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+
+          <!-- Ayuda y Soporte -->
+          <div id="ayudaContent" class="space-y-6 hidden">
+            <div class="text-center">
+              <div class="text-6xl mb-4">ℹ️</div>
+              <h3 class="text-xl font-bold text-gray-800">Ayuda y Soporte</h3>
+              <p class="text-gray-600 text-sm">
+                Encuentra respuestas a tus preguntas
+              </p>
+            </div>
+
+            <!-- Preguntas Frecuentes -->
+            <div class="space-y-4">
+              <h4 class="text-lg font-semibold text-gray-800">
+                Preguntas Frecuentes
+              </h4>
+
+              <details
+                class="border border-gray-300 rounded-lg p-4 cursor-pointer"
+              >
+                <summary
+                  class="font-semibold text-gray-800 hover:text-blue-500"
+                >
+                  ¿Cómo empiezo a jugar?
+                </summary>
+                <p class="mt-2 text-gray-600 text-sm">
+                  Dirígete a la sección "Minijuegos" en la página principal y
+                  selecciona el juego que desees. Los juegos se abrirán en una
+                  nueva ventana.
+                </p>
+              </details>
+
+              <details
+                class="border border-gray-300 rounded-lg p-4 cursor-pointer"
+              >
+                <summary
+                  class="font-semibold text-gray-800 hover:text-blue-500"
+                >
+                  ¿Cómo se guardan mis datos?
+                </summary>
+                <p class="mt-2 text-gray-600 text-sm">
+                  Tus datos se guardan automáticamente en tu navegador. Cada
+                  juego mantiene un registro de tu progreso.
+                </p>
+              </details>
+
+              <details
+                class="border border-gray-300 rounded-lg p-4 cursor-pointer"
+              >
+                <summary
+                  class="font-semibold text-gray-800 hover:text-blue-500"
+                >
+                  ¿Puedo compartir mis resultados?
+                </summary>
+                <p class="mt-2 text-gray-600 text-sm">
+                  Proximamente podrás compartir tus logros con otros usuarios a
+                  través del sistema de rankings.
+                </p>
+              </details>
+            </div>
+
+            <!-- Contacto -->
+            <div class="border-t border-gray-200 pt-6">
+              <h4 class="text-lg font-semibold text-gray-800 mb-4">
+                ¿Necesitas más ayuda?
+              </h4>
+              <p class="text-gray-600 text-sm mb-4">
+                Contacta con nuestro equipo de soporte para resolver cualquier
+                duda.
+              </p>
+              <button
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Enviar Mensaje
+              </button>
+            </div>
+          </div>
+
+          <!-- Configuración -->
+          <div id="configuracionContent" class="space-y-6 hidden">
+            <div class="text-center">
+              <div class="text-6xl mb-4">⚙️</div>
+              <h3 class="text-xl font-bold text-gray-800">Configuración</h3>
+              <p class="text-gray-600 text-sm">Personaliza tu experiencia</p>
+            </div>
+
+            <!-- Tarjetas de Configuración -->
+            <div class="space-y-4">
+              <!-- Mi Perfil -->
+              <button
+                onclick="mostrarSlide('perfil')"
+                class="w-full bg-white border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-all"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-semibold text-gray-800">👤 Mi Perfil</h4>
+                  <span class="text-blue-500">→</span>
+                </div>
+                <p class="text-gray-600 text-sm">
+                  Edita tu información personal
+                </p>
+              </button>
+
+              <!-- Ayuda y Soporte -->
+              <button
+                onclick="mostrarSlide('ayuda')"
+                class="w-full bg-white border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-all"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-semibold text-gray-800">
+                    ℹ️ Ayuda y Soporte
+                  </h4>
+                  <span class="text-green-500">→</span>
+                </div>
+                <p class="text-gray-600 text-sm">
+                  Encuentra respuestas a tus preguntas
+                </p>
+              </button>
+
+              <!-- Privacidad -->
+              <button
+                onclick="proximamente(event)"
+                class="w-full bg-white border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-all"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-semibold text-gray-800">
+                    🔐 Privacidad y Seguridad
+                  </h4>
+                  <span class="text-purple-500">→</span>
+                </div>
+                <p class="text-gray-600 text-sm">
+                  Controla tu privacidad y seguridad
+                </p>
+              </button>
+            </div>
+
+            <!-- Sección Preferencias -->
+            <div class="border-t border-gray-200 pt-6">
+              <h4 class="text-lg font-semibold text-gray-800 mb-4">
+                Preferencias
+              </h4>
+              <div class="space-y-3">
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked
+                    class="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                  />
+                  <span class="ml-3 text-gray-700">
+                    Notificaciones activadas
+                  </span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked
+                    class="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                  />
+                  <span class="ml-3 text-gray-700"> Sonidos activados </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estadísticas -->
+          <div id="estadisticasContent" class="space-y-6 hidden">
+            <div class="text-center">
+              <div class="text-6xl mb-4">📊</div>
+              <h3 class="text-xl font-bold text-gray-800">Estadísticas</h3>
+              <p class="text-gray-600 text-sm">Tu progreso y desempeño</p>
+            </div>
+
+            <!-- Tarjetas de Estadísticas -->
+            <div class="space-y-4">
+              <!-- Mi Progreso -->
+              <button
+                onclick="proximamente(event)"
+                class="w-full bg-white border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-all"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-semibold text-gray-800">📈 Mi Progreso</h4>
+                  <span class="text-orange-500">→</span>
+                </div>
+                <p class="text-gray-600 text-sm">
+                  Visualiza tu progreso y desempeño en los juegos
+                </p>
+              </button>
+
+              <!-- Logros -->
+              <button
+                onclick="proximamente(event)"
+                class="w-full bg-white border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-all"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-semibold text-gray-800">🏆 Logros</h4>
+                  <span class="text-red-500">→</span>
+                </div>
+                <p class="text-gray-600 text-sm">
+                  Desbloquea insignias y logros especiales
+                </p>
+              </button>
+
+              <!-- Rankings -->
+              <button
+                onclick="proximamente(event)"
+                class="w-full bg-white border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-all"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-semibold text-gray-800">🌟 Rankings</h4>
+                  <span class="text-pink-500">→</span>
+                </div>
+                <p class="text-gray-600 text-sm">
+                  Compite con otros jugadores y sube en el ranking
+                </p>
+              </button>
+            </div>
+
+            <!-- Resumen Rápido -->
+            <div class="border-t border-gray-200 pt-6">
+              <h4 class="text-lg font-semibold text-gray-800 mb-4">Resumen</h4>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-blue-50 rounded-lg p-3 text-center">
+                  <p class="text-2xl font-bold text-blue-600">3</p>
+                  <p class="text-xs text-gray-600">Juegos Jugados</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-3 text-center">
+                  <p class="text-2xl font-bold text-green-600">142</p>
+                  <p class="text-xs text-gray-600">Puntos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay del Slide Panel -->
+    <div
+      id="slideOverlay"
+      class="hidden fixed inset-0 bg-black/30 z-30 transition-opacity duration-300"
+      onclick="cerrarSlide()"
+    ></div>
+
+    <script src="js/main.js"></script>
+    <script>
+      function proximamente(event) {
+        event.preventDefault();
+        document.getElementById("proximamenteModal").classList.remove("hidden");
+      }
+
+      function cerrarProximamente() {
+        document.getElementById("proximamenteModal").classList.add("hidden");
+      }
+
+      function abrirPerfil() {
+        mostrarSlide("perfil");
+      }
+
+      function abrirAyuda() {
+        mostrarSlide("ayuda");
+      }
+
+      function abrirConfiguracion() {
+        mostrarSlide("configuracion");
+      }
+
+      function abrirEstadisticas() {
+        mostrarSlide("estadisticas");
+      }
+
+      function mostrarSlide(tipo) {
+        const panel = document.getElementById("slidePanel");
+        const overlay = document.getElementById("slideOverlay");
+        const title = document.getElementById("panelTitle");
+        const perfilContent = document.getElementById("perfilContent");
+        const ayudaContent = document.getElementById("ayudaContent");
+        const estadisticasContent = document.getElementById(
+          "estadisticasContent"
+        );
+        const configuracionContent = document.getElementById(
+          "configuracionContent"
+        );
+
+        if (tipo === "perfil") {
+          title.textContent = "👤 Mi Perfil";
+          perfilContent.classList.remove("hidden");
+          ayudaContent.classList.add("hidden");
+          estadisticasContent.classList.add("hidden");
+          configuracionContent.classList.add("hidden");
+        } else if (tipo === "ayuda") {
+          title.textContent = "ℹ️ Ayuda y Soporte";
+          perfilContent.classList.add("hidden");
+          ayudaContent.classList.remove("hidden");
+          estadisticasContent.classList.add("hidden");
+          configuracionContent.classList.add("hidden");
+        } else if (tipo === "estadisticas") {
+          title.textContent = "📊 Estadísticas";
+          perfilContent.classList.add("hidden");
+          ayudaContent.classList.add("hidden");
+          estadisticasContent.classList.remove("hidden");
+          configuracionContent.classList.add("hidden");
+        } else if (tipo === "configuracion") {
+          title.textContent = "⚙️ Configuración";
+          perfilContent.classList.add("hidden");
+          ayudaContent.classList.add("hidden");
+          estadisticasContent.classList.add("hidden");
+          configuracionContent.classList.remove("hidden");
+        }
+
+        // Mostrar panel y overlay
+        panel.classList.remove("translate-x-full");
+        overlay.classList.remove("hidden");
+      }
+
+      function cerrarSlide() {
+        const panel = document.getElementById("slidePanel");
+        const overlay = document.getElementById("slideOverlay");
+
+        panel.classList.add("translate-x-full");
+        overlay.classList.add("hidden");
+      }
+
+      // Cerrar modal al hacer click fuera
+      document
+        .getElementById("proximamenteModal")
+        .addEventListener("click", function (event) {
+          if (event.target === this) {
+            cerrarProximamente();
+          }
+        });
+
+      // Cerrar slide al presionar ESC
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          cerrarSlide();
+        }
+      });
+    </script>
+  </body>
+</html>

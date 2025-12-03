@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crucigrama Aleatorio de Lucho 🧩</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/crucigrama.css" />
+  </head>
+
+  <body class="flex justify-center items-center min-h-screen p-5">
+    <!-- Switch de tema oscuro -->
+    <div
+      class="fixed top-3 right-3 z-50 flex items-center"
+      title="Cambiar tema"
+    >
+      <label
+        class="relative inline-block w-12 h-6 bg-gray-300 rounded-full cursor-pointer transition-colors hover:bg-gray-400"
+      >
+        <input
+          type="checkbox"
+          id="theme-switch"
+          class="absolute opacity-0 w-0 h-0 peer"
+        />
+        <span
+          class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-6 shadow-md"
+        ></span>
+      </label>
+    </div>
+
+    <div
+      class="game-container rounded-xl shadow-lg p-5 flex gap-8 max-w-95 relative overflow-hidden"
+    >
+      <div class="left-panel">
+        <h1
+          class="m-0 mb-3 text-blue-600 text-2xl md:text-3xl font-bold text-center"
+        >
+          Crucigrama Aleatorio 🧩
+        </h1>
+        <div id="crossword" class="crossword"></div>
+      </div>
+
+      <div class="word-list min-w-44 text-left">
+        <h2
+          class="text-lg md:text-xl font-bold text-blue-600 dark:text-blue-400 text-center m-0 mb-2"
+        >
+          Palabras
+        </h2>
+        <ul id="word-list" class="list-none p-0 m-0"></ul>
+      </div>
+
+      <div
+        id="completion-modal"
+        class="absolute inset-0 bg-white/90 dark:bg-slate-800/90 flex flex-col justify-center items-center invisible opacity-0 transition-all duration-400 rounded-xl"
+      >
+        <h2 class="text-3xl md:text-5xl font-bold text-green-500 mb-4">
+          ¡Felicidades!
+        </h2>
+        <p class="text-lg text-gray-700 dark:text-gray-300 mb-6">
+          Completaste el crucigrama.
+        </p>
+        <button
+          id="new-game-btn"
+          class="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+        >
+          Jugar de Nuevo
+        </button>
+      </div>
+    </div>
+
+    <script src="../js/crucigrama.js"></script>
+  </body>
+</html>
