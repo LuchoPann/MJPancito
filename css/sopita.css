@@ -163,6 +163,25 @@ h1 {
   color: #c4b5d9;
 }
 
+.oculta-encontrada {
+  text-decoration: none !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #ff6b9d 0%, #ffa500 100%) !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  font-weight: bold !important;
+  animation: oculta-pulse 0.5s ease-in-out;
+}
+
+.oculta-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 8px;
+  font-size: 0.9em;
+}
+
 #completion-modal {
   position: absolute;
   top: 0;
@@ -207,6 +226,20 @@ h1 {
 
 #new-game-btn:hover {
   background-color: #6d28d9;
+}
+
+@keyframes oculta-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 800px) {

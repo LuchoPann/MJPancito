@@ -1,10 +1,40 @@
 // --- CRUCIGRAMA GAME ---
 
+// Constantes para el sistema de puntos
+const TIEMPO_BONUS_CRUCIGRAMA = 30; // 30 segundos para bonus
+const PUNTOS_BONUS_CRUCIGRAMA = 15; // 15 puntos en los primeros 30 seg
+const PUNTOS_NORMAL_CRUCIGRAMA = 10; // 10 puntos normales
+
+let inicioJuegoCrucigrama = null;
+let puntosObtenidosCrucigrama = 0;
+let juegoCompletadoCrucigrama = false;
+let timerIntervalCrucigrama = null; // Para controlar el interval del timer
+
 async function loadWords() {
   const res = await fetch("../src/words.json");
   if (!res.ok) throw new Error("No se pudo cargar words.json");
   const data = await res.json();
   return data.map((w) => String(w).trim().toUpperCase()).filter(Boolean);
+}
+
+function startTimerCrucigrama() {
+  const timerElement = document.getElementById("timer");
+  if (!timerElement) return;
+
+  timerElement.textContent = "00:00";
+
+  timerIntervalCrucigrama = setInterval(() => {
+    if (inicioJuegoCrucigrama) {
+      const tiempoTranscurrido = Math.floor(
+        (Date.now() - inicioJuegoCrucigrama) / 1000
+      );
+      const minutos = Math.floor(tiempoTranscurrido / 60);
+      const segundos = tiempoTranscurrido % 60;
+      timerElement.textContent = `${String(minutos).padStart(2, "0")}:${String(
+        segundos
+      ).padStart(2, "0")}`;
+    }
+  }, 1000);
 }
 
 async function initCrossword() {
@@ -17,6 +47,15 @@ async function initCrossword() {
     console.error(err);
     return;
   }
+
+  // Reinicializar variables
+  inicioJuegoCrucigrama = Date.now();
+  puntosObtenidosCrucigrama = 0;
+  juegoCompletadoCrucigrama = false;
+
+  // Limpiar timer anterior y iniciar uno nuevo
+  if (timerIntervalCrucigrama) clearInterval(timerIntervalCrucigrama);
+  startTimerCrucigrama();
 
   const words = [...wordPool].sort(() => 0.5 - Math.random()).slice(0, 10);
   const crossword = document.getElementById("crossword");
@@ -193,13 +232,38 @@ async function initCrossword() {
           e.classList.add("correct");
         });
         const li = document.getElementById(`word-${word}`);
-        if (li) li.classList.add("found-word");
+        if (li && !li.classList.contains("found-word")) {
+          li.classList.add("found-word");
+
+          // Calcular y agregar puntos
+          const tiempoTranscurrido =
+            (Date.now() - inicioJuegoCrucigrama) / 1000;
+          if (tiempoTranscurrido <= TIEMPO_BONUS_CRUCIGRAMA) {
+            puntosObtenidosCrucigrama += PUNTOS_BONUS_CRUCIGRAMA;
+            console.log(
+              `⚡ Palabra encontrada rápido! +${PUNTOS_BONUS_CRUCIGRAMA} pts (tiempo: ${tiempoTranscurrido.toFixed(
+                1
+              )}s)`
+            );
+          } else {
+            puntosObtenidosCrucigrama += PUNTOS_NORMAL_CRUCIGRAMA;
+            console.log(
+              `✓ Palabra encontrada. +${PUNTOS_NORMAL_CRUCIGRAMA} pts`
+            );
+          }
+        }
         completed++;
       }
     });
 
     if (completed === placedWords.length) {
+      juegoCompletadoCrucigrama = true;
+      console.log(
+        `🎉 ¡Crucigrama completado! Puntos totales: ${puntosObtenidosCrucigrama}`
+      );
       document.getElementById("completion-modal").classList.add("visible");
+      // Guardar estadística cuando se completa el crucigrama
+      guardarEstadisticaCrucigrama();
     } else {
       document.getElementById("completion-modal").classList.remove("visible");
     }
@@ -209,6 +273,39 @@ async function initCrossword() {
     document.getElementById("completion-modal").classList.remove("visible");
     await initCrossword();
   };
+}
+
+// Función para guardar estadística del crucigrama
+async function guardarEstadisticaCrucigrama() {
+  // Obtener usuario actual desde localStorage
+  const usuarioJSON = localStorage.getItem("usuarioActual");
+  if (!usuarioJSON) {
+    console.log("Usuario no logueado, estadística no guardada");
+    return;
+  }
+
+  const usuario = JSON.parse(usuarioJSON);
+  const tiempoSegundos = Math.floor(
+    (Date.now() - inicioJuegoCrucigrama) / 1000
+  );
+
+  // Guardar en Supabase (si la función existe)
+  if (typeof guardarEstadistica === "function") {
+    const resultado = await guardarEstadistica(
+      usuario.id,
+      "crucigrama",
+      puntosObtenidosCrucigrama,
+      tiempoSegundos
+    );
+
+    if (resultado) {
+      console.log("✅ Estadística guardada:", resultado);
+    } else {
+      console.log("❌ Error guardando estadística");
+    }
+  } else {
+    console.log("⚠️ Función guardarEstadistica no disponible");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", initCrossword);

@@ -2,9 +2,18 @@
 const gridSize = 15;
 const wordsPerGame = 10;
 const wordsFilePath = "../src/words.json";
+const TIEMPO_BONUS_SEGUNDOS = 15; // Primeros 15 segundos valen 15 puntos
+const PUNTOS_BONUS_RAPIDO = 15; // Puntos si se encuentran en los primeros 15 seg
+const PUNTOS_NORMAL = 10; // Puntos normales por palabra
+const PUNTOS_OCULTA = 20; // Puntos por encontrar palabra oculta
+const PROB_PALABRA_OCULTA = 0.3; // 30% de probabilidad de tener palabra oculta
 
 let wordsToFind = [];
 let foundWordsCount = 0;
+let palabraOculta = null; // Palabra oculta para esta partida
+let palabraOcultaEncontrada = false;
+let puntosObtenidos = 0; // Puntos acumulados
+let juegoCompletado = false; // Indica si se completó toda la sopa
 
 // --- ELEMENTOS DEL DOM ---
 const gridElement = document.getElementById("word-search-grid");
@@ -17,6 +26,7 @@ document.documentElement.style.setProperty("--grid-size", gridSize);
 let grid = [];
 let isSelecting = false;
 let selectedCells = [];
+let timerInterval = null; // Para controlar el interval del timer
 
 // --- INICIALIZACIÓN ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -33,6 +43,16 @@ async function initializeGame() {
   modalElement.classList.remove("visible");
   foundWordsCount = 0;
   wordsToFind = [];
+  palabraOculta = null;
+  palabraOcultaEncontrada = false;
+  puntosObtenidos = 0;
+  juegoCompletado = false;
+  window.inicioJuego = Date.now(); // Registrar inicio del juego
+
+  // Limpiar timer anterior si existe
+  if (timerInterval) clearInterval(timerInterval);
+  // Iniciar timer
+  startTimer();
 
   let wordPool = [];
   try {
@@ -48,10 +68,34 @@ async function initializeGame() {
     return;
   }
 
+  // Seleccionar palabras visibles
   wordsToFind = selectRandomWords(wordPool, wordsPerGame);
+
+  // Decidir si habrá palabra oculta (30% de probabilidad)
+  if (Math.random() < PROB_PALABRA_OCULTA && wordPool.length > wordsPerGame) {
+    // Seleccionar una palabra oculta del pool, pero no de las visibles
+    const palabrasDisponibles = wordPool.filter(
+      (p) => !wordsToFind.includes(p)
+    );
+    if (palabrasDisponibles.length > 0) {
+      palabraOculta =
+        palabrasDisponibles[
+          Math.floor(Math.random() * palabrasDisponibles.length)
+        ];
+      console.log("🔒 Palabra oculta esta partida:", palabraOculta);
+    }
+  }
 
   createGrid();
   placeWords();
+  if (palabraOculta) {
+    placeWord(
+      palabraOculta,
+      Math.floor(Math.random() * gridSize),
+      Math.floor(Math.random() * gridSize),
+      Math.floor(Math.random() * 4)
+    );
+  }
   fillEmptyCells();
   renderGrid();
   renderWordList();
@@ -61,6 +105,26 @@ async function initializeGame() {
 /**
  * Selecciona un número `count` de palabras aleatorias de un `pool`.
  */
+function startTimer() {
+  const timerElement = document.getElementById("timer");
+  if (!timerElement) return;
+
+  timerElement.textContent = "00:00";
+
+  timerInterval = setInterval(() => {
+    if (window.inicioJuego) {
+      const tiempoTranscurrido = Math.floor(
+        (Date.now() - window.inicioJuego) / 1000
+      );
+      const minutos = Math.floor(tiempoTranscurrido / 60);
+      const segundos = tiempoTranscurrido % 60;
+      timerElement.textContent = `${String(minutos).padStart(2, "0")}:${String(
+        segundos
+      ).padStart(2, "0")}`;
+    }
+  }, 1000);
+}
+
 function selectRandomWords(pool, count) {
   const shuffled = pool.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
@@ -230,12 +294,24 @@ function checkSelection() {
   let selectedWordReversed = [...selectedWord].reverse().join("");
   let found = false;
 
+  // Buscar en palabras visibles
   if (wordsToFind.includes(selectedWord)) {
     markAsFound(selectedWord);
     found = true;
   } else if (wordsToFind.includes(selectedWordReversed)) {
     markAsFound(selectedWordReversed);
     found = true;
+  }
+
+  // Buscar palabra oculta
+  if (!found && palabraOculta) {
+    if (selectedWord === palabraOculta) {
+      markAsFound(selectedWord);
+      found = true;
+    } else if (selectedWordReversed === palabraOculta) {
+      markAsFound(selectedWordReversed);
+      found = true;
+    }
   }
 
   if (found) {
@@ -250,13 +326,97 @@ function checkSelection() {
 }
 
 function markAsFound(word) {
+  // Verificar si ya fue encontrada
   const wordLi = document.getElementById(`word-${word}`);
-  if (wordLi && !wordLi.classList.contains("found-word")) {
+  if (wordLi && wordLi.classList.contains("found-word")) {
+    return; // Ya estaba encontrada, no contar de nuevo
+  }
+
+  // Si es la palabra oculta
+  if (word === palabraOculta) {
+    palabraOcultaEncontrada = true;
+    puntosObtenidos += PUNTOS_OCULTA;
+    console.log(`🔒 ¡Palabra oculta encontrada! +${PUNTOS_OCULTA} pts`);
+    const hiddenLi = document.createElement("li");
+    hiddenLi.id = `word-${word}`;
+    hiddenLi.className = "found-word oculta-encontrada";
+    hiddenLi.innerHTML = `<span class="oculta-badge">🔒 OCULTA!</span> ${word.toUpperCase()}`;
+    wordListElement.appendChild(hiddenLi);
+    wordListElement.scrollTop = wordListElement.scrollHeight;
+  } else if (wordLi && !wordLi.classList.contains("found-word")) {
+    // Es una palabra visible
     wordLi.classList.add("found-word");
     foundWordsCount++;
-    if (foundWordsCount === wordsToFind.length) {
-      modalElement.classList.add("visible");
+
+    // Calcular puntos según el tiempo
+    const tiempoTranscurrido = (Date.now() - window.inicioJuego) / 1000;
+    if (tiempoTranscurrido <= TIEMPO_BONUS_SEGUNDOS) {
+      puntosObtenidos += PUNTOS_BONUS_RAPIDO;
+      console.log(
+        `⚡ Palabra encontrada rápido! +${PUNTOS_BONUS_RAPIDO} pts (tiempo: ${tiempoTranscurrido.toFixed(
+          1
+        )}s)`
+      );
+    } else {
+      puntosObtenidos += PUNTOS_NORMAL;
+      console.log(`✓ Palabra encontrada. +${PUNTOS_NORMAL} pts`);
     }
+  }
+
+  // Verificar si se completó el juego
+  const todasEncontradas = foundWordsCount === wordsToFind.length;
+  if (todasEncontradas) {
+    juegoCompletado = true;
+    modalElement.classList.add("visible");
+    console.log(`🎉 ¡Juego completado! Puntos totales: ${puntosObtenidos}`);
+    // Guardar estadística cuando se completa el juego
+    guardarEstadisticaSopita();
+  }
+}
+
+// Función para guardar estadística
+async function guardarEstadisticaSopita() {
+  // Obtener usuario actual desde localStorage
+  const usuarioJSON = localStorage.getItem("usuarioActual");
+  if (!usuarioJSON) {
+    console.log("Usuario no logueado, estadística no guardada");
+    return;
+  }
+
+  const usuario = JSON.parse(usuarioJSON);
+
+  // Si no se completó el juego, anular bonus y recalcular
+  let puntosFinales = puntosObtenidos;
+  if (!juegoCompletado) {
+    console.log("⚠️ Juego no completado - Anulando bonus");
+    // Recalcular: solo contar palabras normales con 10 puntos
+    puntosFinales = foundWordsCount * PUNTOS_NORMAL;
+    console.log(
+      `Puntos sin bonus: ${puntosFinales} (${foundWordsCount} palabras × ${PUNTOS_NORMAL} pts)`
+    );
+  } else {
+    console.log(
+      `✅ Juego completado - Manteniendo puntos con bonus: ${puntosFinales}`
+    );
+  }
+
+  // Guardar en Supabase (si la función existe)
+  if (typeof guardarEstadistica === "function") {
+    const tiempoSegundos = Math.floor((Date.now() - window.inicioJuego) / 1000);
+    const resultado = await guardarEstadistica(
+      usuario.id,
+      "sopita",
+      puntosFinales,
+      tiempoSegundos
+    );
+
+    if (resultado) {
+      console.log("✅ Estadística guardada:", resultado);
+    } else {
+      console.log("❌ Error guardando estadística");
+    }
+  } else {
+    console.log("⚠️ Función guardarEstadistica no disponible");
   }
 }
 

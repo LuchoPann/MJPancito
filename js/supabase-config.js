@@ -41,6 +41,8 @@ async function registrarUsuario(email, contraseña, nombre) {
 
     if (authError) throw authError;
 
+    console.log("Usuario auth creado:", user.id);
+
     // Crear perfil del usuario en tabla usuarios
     const { data: perfil, error: profileError } = await supabaseClient
       .from("usuarios")
@@ -55,10 +57,30 @@ async function registrarUsuario(email, contraseña, nombre) {
       .select()
       .single();
 
-    if (profileError) throw profileError;
+    if (profileError) {
+      console.error("Error RLS detallado:", profileError);
+      throw profileError;
+    }
 
-    guardarUsuarioActual(perfil);
-    return { success: true, usuario: perfil };
+    console.log("Perfil creado:", perfil);
+
+    // Intentar hacer login automático después del registro
+    const {
+      data: { user: loginUser },
+      error: loginError,
+    } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: contraseña,
+    });
+
+    if (!loginError && loginUser) {
+      guardarUsuarioActual(perfil);
+      return { success: true, usuario: perfil };
+    } else {
+      // Si login automático falla, devolver el usuario del registro
+      guardarUsuarioActual(perfil);
+      return { success: true, usuario: perfil };
+    }
   } catch (error) {
     console.error("Error registrando usuario:", error);
     return { success: false, error: error.message };
@@ -162,6 +184,10 @@ async function guardarEstadistica(usuarioId, juego, puntos, tiempo) {
       .single();
 
     if (error) throw error;
+
+    // Verificar logros después de guardar
+    await verificarLogros(usuarioId);
+
     return data;
   } catch (error) {
     console.error("Error guardando estadística:", error);
@@ -209,13 +235,294 @@ async function obtenerRankingJuego(juego, limite = 10) {
   }
 }
 
+// Obtener ranking global (todos los juegos)
+async function obtenerRankingGlobal(limite = 20) {
+  try {
+    const { data, error } = await supabaseClient
+      .from("estadisticas")
+      .select("usuario_id, puntos, usuarios(nombre)")
+      .order("puntos", { ascending: false })
+      .limit(limite);
+
+    if (error) throw error;
+
+    // Agrupar por usuario y sumar puntos
+    const rankingAgrupado = {};
+    data.forEach((record) => {
+      if (!rankingAgrupado[record.usuario_id]) {
+        rankingAgrupado[record.usuario_id] = {
+          usuario_id: record.usuario_id,
+          nombre: record.usuarios?.nombre || "Usuario",
+          puntos_totales: 0,
+          juegos_jugados: 0,
+        };
+      }
+      rankingAgrupado[record.usuario_id].puntos_totales += record.puntos;
+      rankingAgrupado[record.usuario_id].juegos_jugados += 1;
+    });
+
+    return Object.values(rankingAgrupado)
+      .sort((a, b) => b.puntos_totales - a.puntos_totales)
+      .slice(0, limite);
+  } catch (error) {
+    console.error("Error obteniendo ranking global:", error);
+    return [];
+  }
+}
+
+// Obtener estadísticas resume del usuario
+async function obtenerResumenEstadisticas(usuarioId) {
+  try {
+    const { data, error } = await supabaseClient
+      .from("estadisticas")
+      .select("*")
+      .eq("usuario_id", usuarioId);
+
+    if (error) throw error;
+
+    const resumen = {
+      total_partidas: data.length,
+      puntos_totales: 0,
+      promedio_puntos: 0,
+      mejor_puntaje: 0,
+      juegos: {},
+    };
+
+    data.forEach((stat) => {
+      resumen.puntos_totales += stat.puntos;
+      if (stat.puntos > resumen.mejor_puntaje) {
+        resumen.mejor_puntaje = stat.puntos;
+      }
+
+      if (!resumen.juegos[stat.juego]) {
+        resumen.juegos[stat.juego] = {
+          nombre: stat.juego,
+          partidas: 0,
+          puntos: 0,
+          mejor: 0,
+        };
+      }
+      resumen.juegos[stat.juego].partidas += 1;
+      resumen.juegos[stat.juego].puntos += stat.puntos;
+      if (stat.puntos > resumen.juegos[stat.juego].mejor) {
+        resumen.juegos[stat.juego].mejor = stat.puntos;
+      }
+    });
+
+    resumen.promedio_puntos =
+      resumen.total_partidas > 0
+        ? Math.round(resumen.puntos_totales / resumen.total_partidas)
+        : 0;
+
+    return resumen;
+  } catch (error) {
+    console.error("Error obteniendo resumen estadísticas:", error);
+    return null;
+  }
+}
+
+// Sistema de Logros
+async function obtenerLogros(usuarioId) {
+  try {
+    const { data, error } = await supabaseClient
+      .from("logros")
+      .select("*")
+      .eq("usuario_id", usuarioId)
+      .order("fecha_obtenido", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error obteniendo logros:", error);
+    return [];
+  }
+}
+
+// Desbloquear logro
+async function desbloquearLogro(usuarioId, logroId) {
+  try {
+    const { data, error } = await supabaseClient
+      .from("logros")
+      .insert([
+        {
+          usuario_id: usuarioId,
+          logro_id: logroId,
+          fecha_obtenido: new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single();
+
+    if (error && error.code !== "23505") throw error; // 23505 es el error de duplicate key
+    return data;
+  } catch (error) {
+    console.error("Error desbloqueando logro:", error);
+    return null;
+  }
+}
+
+// Definir los logros disponibles
+const LOGROS_DISPONIBLES = {
+  PRIMER_JUEGO: {
+    id: "primer_juego",
+    nombre: "🎮 Primer Juego",
+    descripcion: "Completa tu primer juego",
+    icono: "🎮",
+  },
+  CENTENA: {
+    id: "100_puntos",
+    nombre: "⭐ Centena",
+    descripcion: "Obtén 100 puntos en un juego",
+    icono: "⭐",
+  },
+  QUINTO_CENTENAR: {
+    id: "500_puntos",
+    nombre: "🌟 Quinto Centenar",
+    descripcion: "Obtén 500 puntos totales",
+    icono: "🌟",
+  },
+  DECADA: {
+    id: "10_partidas",
+    nombre: "🏆 Década",
+    descripcion: "Completa 10 partidas",
+    icono: "🏆",
+  },
+  MAESTRO: {
+    id: "todos_juegos",
+    nombre: "👑 Maestro",
+    descripcion: "Juega todos los juegos disponibles",
+    icono: "👑",
+  },
+};
+
+// Verificar y desbloquear logros automáticamente
+async function verificarLogros(usuarioId) {
+  try {
+    const resumen = await obtenerResumenEstadisticas(usuarioId);
+    const logrosObtenidos = await obtenerLogros(usuarioId);
+    const logrosObtenidosIds = logrosObtenidos.map((l) => l.logro_id);
+
+    // Logro: Primer Juego
+    if (
+      resumen.total_partidas >= 1 &&
+      !logrosObtenidosIds.includes("primer_juego")
+    ) {
+      await desbloquearLogro(usuarioId, "primer_juego");
+    }
+
+    // Logro: 100 Puntos
+    if (
+      resumen.mejor_puntaje >= 100 &&
+      !logrosObtenidosIds.includes("100_puntos")
+    ) {
+      await desbloquearLogro(usuarioId, "100_puntos");
+    }
+
+    // Logro: 500 Puntos Totales
+    if (
+      resumen.puntos_totales >= 500 &&
+      !logrosObtenidosIds.includes("500_puntos")
+    ) {
+      await desbloquearLogro(usuarioId, "500_puntos");
+    }
+
+    // Logro: 10 Partidas
+    if (
+      resumen.total_partidas >= 10 &&
+      !logrosObtenidosIds.includes("10_partidas")
+    ) {
+      await desbloquearLogro(usuarioId, "10_partidas");
+    }
+
+    // Logro: Todos los Juegos
+    const juegosUnicos = Object.keys(resumen.juegos).length;
+    const juegosDisponibles = 4; // Crucigrama, Ruleta, Sopita, Etc.
+    if (
+      juegosUnicos >= juegosDisponibles &&
+      !logrosObtenidosIds.includes("todos_juegos")
+    ) {
+      await desbloquearLogro(usuarioId, "todos_juegos");
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error verificando logros:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Calcular edad desde fecha de nacimiento
+function calcularEdad(fechaNacimiento) {
+  if (!fechaNacimiento) return null;
+  const hoy = new Date();
+  const nacimiento = new Date(fechaNacimiento);
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const mes = hoy.getMonth() - nacimiento.getMonth();
+  if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+    edad--;
+  }
+  return edad;
+}
+
+// Convertir fecha a formato legible
+function formatearFecha(fecha) {
+  if (!fecha) return "-";
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(fecha).toLocaleDateString("es-ES", options);
+}
+
+// Obtener nombre de sexo
+function obtenerSexoTexto(sexo) {
+  const sexos = {
+    masculino: "Masculino",
+    femenino: "Femenino",
+    otro: "Otro",
+    preferir_no_decir: "Prefiero no decir",
+  };
+  return sexos[sexo] || "-";
+}
+
 // Actualizar UI con datos del usuario
 function actualizarUIConUsuario(usuario) {
-  const nombreInput = document.querySelector('input[placeholder="Tu nombre"]');
-  const emailInput = document.querySelector(
-    'input[placeholder="tu@email.com"]'
+  // Actualizar vista de perfil (lectura)
+  if (usuario.nombre) {
+    document.getElementById("nombrePerfil").textContent = usuario.nombre;
+    document.getElementById("displayNombre").textContent = usuario.nombre;
+  }
+
+  document.getElementById("emailPerfil").textContent = usuario.email;
+  document.getElementById("displayEmail").textContent = usuario.email;
+
+  if (usuario.fecha_nacimiento) {
+    const edad = calcularEdad(usuario.fecha_nacimiento);
+    document.getElementById("displayEdad").textContent = edad
+      ? `${edad} años`
+      : "-";
+    document.getElementById("displayFechaNacimiento").textContent =
+      formatearFecha(usuario.fecha_nacimiento);
+  }
+
+  document.getElementById("displaySexo").textContent = obtenerSexoTexto(
+    usuario.sexo || ""
   );
 
-  if (nombreInput) nombreInput.value = usuario.nombre || "";
-  if (emailInput) emailInput.value = usuario.email || "";
+  // Mostrar foto de perfil si existe
+  if (usuario.foto_url) {
+    document.getElementById("fotoPerfil").src = usuario.foto_url;
+    document.getElementById("previewFoto").src = usuario.foto_url;
+  }
+
+  // Actualizar formulario de edición
+  document.getElementById("editNombre").value = usuario.nombre || "";
+  document.getElementById("editFechaNacimiento").value =
+    usuario.fecha_nacimiento || "";
+  document.getElementById("editSexo").value = usuario.sexo || "";
+
+  // Actualizar edad automática cuando cambia la fecha
+  if (usuario.fecha_nacimiento) {
+    const edad = calcularEdad(usuario.fecha_nacimiento);
+    document.getElementById(
+      "edadAutomatica"
+    ).textContent = `Edad: ${edad} años`;
+  }
 }
