@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ruleta Dinámica - Primeros Auxilios Psicológicos</title>
+    <title>Ruleta de Opciones</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
     </style>
@@ -16,36 +16,38 @@
     <!-- Botón Volver -->
     <button
       id="btnVolver"
-      class="fixed top-6 left-6 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg z-40"
+      class="fixed top-6 left-6 bg-gradient-to-br from-purple-100 to-pink-100 hover:from-purple-200 hover:to-pink-200 text-purple-700 font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg z-40 border border-purple-300"
       title="Volver al inicio"
     >
       ← Volver
     </button>
 
-    <div
-      class="game-container rounded-2xl shadow-lg p-6 md:p-10 max-w-6xl relative overflow-hidden flex flex-wrap justify-center gap-8"
-    >
+    <div class="container">
       <!-- RULETA SECTION -->
-      <div class="ruleta-wrapper flex flex-col items-center justify-center">
-        <h1 class="ruleta-title mb-6">🧠 Ruleta del Modelo ABCDE</h1>
-        <div class="ruleta-container relative">
+      <div class="ruleta-section">
+        <h1>🎡 Ruleta de Opciones</h1>
+        <div class="ruleta-container">
           <canvas id="ruleta" class="ruleta-canvas"></canvas>
           <div class="flecha">▶</div>
         </div>
-        <button id="girarBtn" class="btn-girar">Girar Ruleta</button>
+        <button id="girarBtn">Girar Ruleta</button>
         <p id="resultado" class="resultado-text"></p>
       </div>
 
-      <!-- PANEL CONTROL SECTION -->
-      <div class="control-panel">
-        <h2 class="panel-title">⚙️ Opciones de la Ruleta</h2>
+      <!-- CONTROL PANEL SECTION -->
+      <div class="content-section">
+        <h2>⚙️ Personaliza tus Opciones</h2>
         <textarea
           id="listaOpciones"
-          placeholder="Escribe una opción por línea. Ejemplo:&#10;💡 Caso 1&#10;💡 Caso 2&#10;💡 Caso 3"
+          placeholder="Escribe una opción por línea&#10;&#10;Ejemplo:&#10;💡 Opción 1&#10;🎯 Opción 2&#10;✨ Opción 3&#10;🌟 Opción 4"
           class="textarea-opciones"
         ></textarea>
-        <button id="guardarBtn" class="btn-primary">💾 Guardar Cambios</button>
-        <button id="borrarBtn" class="btn-danger">🗑️ Borrar Todo</button>
+        <div class="button-group">
+          <button id="guardarBtn" class="btn-primary">
+            💾 Guardar Cambios
+          </button>
+          <button id="borrarBtn" class="btn-danger">🗑️ Borrar Todo</button>
+        </div>
       </div>
     </div>
 

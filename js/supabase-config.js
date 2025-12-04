@@ -217,51 +217,113 @@ async function obtenerEstadisticas(usuarioId, juego = null) {
   }
 }
 
-// Obtener ranking de juego
+// Obtener ranking de juego (Versión corregida: Join Manual)
 async function obtenerRankingJuego(juego, limite = 10) {
   try {
-    const { data, error } = await supabaseClient
+    // 1. Obtener estadísticas crudas
+    const { data: stats, error: statError } = await supabaseClient
       .from("estadisticas")
-      .select("usuario_id, puntos, usuarios(nombre)")
-      .eq("juego", juego)
-      .order("puntos", { ascending: false })
-      .limit(limite);
+      .select("usuario_id, puntos")
+      .eq("juego", juego) // Asegúrate que 'juego' esté en minúsculas al guardar
+      .order("puntos", { ascending: false });
 
-    if (error) throw error;
-    return data;
+    if (statError) throw statError;
+
+    // 2. Agrupar puntos por usuario
+    const rankingMap = {};
+    stats.forEach((record) => {
+      if (!rankingMap[record.usuario_id]) {
+        rankingMap[record.usuario_id] = {
+          usuario_id: record.usuario_id,
+          nombre: "Cargando...", // Nombre temporal
+          puntos: 0,
+          partidas: 0,
+        };
+      }
+      rankingMap[record.usuario_id].puntos += record.puntos;
+      rankingMap[record.usuario_id].partidas += 1;
+    });
+
+    // 3. Obtener los nombres reales de los usuarios encontrados
+    const usuariosIds = Object.keys(rankingMap);
+    if (usuariosIds.length > 0) {
+      const { data: usuarios, error: userError } = await supabaseClient
+        .from("usuarios")
+        .select("id, nombre")
+        .in("id", usuariosIds);
+
+      if (!userError && usuarios) {
+        // Asignar nombres al mapa
+        usuarios.forEach((user) => {
+          if (rankingMap[user.id]) {
+            rankingMap[user.id].nombre = user.nombre;
+          }
+        });
+      }
+    }
+
+    // 4. Convertir a array, ordenar y recortar
+    return Object.values(rankingMap)
+      .sort((a, b) => b.puntos - a.puntos)
+      .slice(0, limite);
   } catch (error) {
-    console.error("Error obteniendo ranking:", error);
+    console.error("Error obteniendo ranking juego:", error);
     return [];
   }
 }
 
-// Obtener ranking global (todos los juegos)
+// Obtener ranking global (Versión corregida: Join Manual)
 async function obtenerRankingGlobal(limite = 20) {
   try {
-    const { data, error } = await supabaseClient
+    // 1. Obtener TODAS las estadísticas
+    const { data: stats, error: statError } = await supabaseClient
       .from("estadisticas")
-      .select("usuario_id, puntos, usuarios(nombre)")
-      .order("puntos", { ascending: false })
-      .limit(limite);
+      .select("usuario_id, puntos, juego")
+      .order("puntos", { ascending: false });
 
-    if (error) throw error;
+    if (statError) throw statError;
 
-    // Agrupar por usuario y sumar puntos
-    const rankingAgrupado = {};
-    data.forEach((record) => {
-      if (!rankingAgrupado[record.usuario_id]) {
-        rankingAgrupado[record.usuario_id] = {
+    // 2. Agrupar y filtrar (excluyendo ruleta en JS para ser seguros)
+    const rankingMap = {};
+
+    stats.forEach((record) => {
+      // Normalizar nombre del juego a minúsculas para comparar
+      const nombreJuego = (record.juego || "").toLowerCase();
+
+      // Si es ruleta, lo saltamos
+      if (nombreJuego === "ruleta") return;
+
+      if (!rankingMap[record.usuario_id]) {
+        rankingMap[record.usuario_id] = {
           usuario_id: record.usuario_id,
-          nombre: record.usuarios?.nombre || "Usuario",
+          nombre: "Usuario",
           puntos_totales: 0,
           juegos_jugados: 0,
         };
       }
-      rankingAgrupado[record.usuario_id].puntos_totales += record.puntos;
-      rankingAgrupado[record.usuario_id].juegos_jugados += 1;
+      rankingMap[record.usuario_id].puntos_totales += record.puntos;
+      rankingMap[record.usuario_id].juegos_jugados += 1;
     });
 
-    return Object.values(rankingAgrupado)
+    // 3. Obtener nombres de usuarios
+    const usuariosIds = Object.keys(rankingMap);
+    if (usuariosIds.length > 0) {
+      const { data: usuarios, error: userError } = await supabaseClient
+        .from("usuarios")
+        .select("id, nombre")
+        .in("id", usuariosIds);
+
+      if (!userError && usuarios) {
+        usuarios.forEach((user) => {
+          if (rankingMap[user.id]) {
+            rankingMap[user.id].nombre = user.nombre;
+          }
+        });
+      }
+    }
+
+    // 4. Ordenar y devolver
+    return Object.values(rankingMap)
       .sort((a, b) => b.puntos_totales - a.puntos_totales)
       .slice(0, limite);
   } catch (error) {
@@ -434,9 +496,11 @@ async function verificarLogros(usuarioId) {
       await desbloquearLogro(usuarioId, "10_partidas");
     }
 
-    // Logro: Todos los Juegos
-    const juegosUnicos = Object.keys(resumen.juegos).length;
-    const juegosDisponibles = 4; // Crucigrama, Ruleta, Sopita, Etc.
+    // Logro: Todos los Juegos (solo Crucigrama y Sopita, no Ruleta)
+    const juegosUnicos = Object.keys(resumen.juegos).filter(
+      (juego) => juego !== "ruleta"
+    ).length;
+    const juegosDisponibles = 2; // Crucigrama y Sopita
     if (
       juegosUnicos >= juegosDisponibles &&
       !logrosObtenidosIds.includes("todos_juegos")

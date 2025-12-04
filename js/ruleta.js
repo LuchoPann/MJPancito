@@ -34,7 +34,8 @@ function cargarDatos() {
   } else {
     premios = ["💡 Caso 1", "💡 Caso 2", "💡 Caso 3"];
   }
-  listaOpciones.value = premios.join("\n");
+  // No cargar datos en el textarea, mantenerlo vacío para que solo muestre el placeholder
+  listaOpciones.value = "";
   dibujarRuleta();
 }
 

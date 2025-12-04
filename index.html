@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mis Minijuegos</title>
+    <title>MJ Pancito</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
 
@@ -783,13 +783,6 @@
                   Crucigrama
                 </button>
                 <button
-                  onclick="cambiarRanking('ruleta')"
-                  id="tabRuleta"
-                  class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold"
-                >
-                  Ruleta
-                </button>
-                <button
                   onclick="cambiarRanking('sopita')"
                   id="tabSopita"
                   class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold"
@@ -1282,71 +1275,37 @@
 
       // Cambiar ranking
       function cambiarRanking(tipo) {
-        // Cambiar colores de botones
-        document
-          .getElementById("tabGlobal")
-          .classList.remove("bg-gray-200", "text-gray-800");
-        document
-          .getElementById("tabCrucigrama")
-          .classList.remove("bg-gray-200", "text-gray-800");
-        document
-          .getElementById("tabRuleta")
-          .classList.remove("bg-gray-200", "text-gray-800");
-        document
-          .getElementById("tabSopita")
-          .classList.remove("bg-gray-200", "text-gray-800");
+        const botones = {
+          global: document.getElementById("tabGlobal"),
+          crucigrama: document.getElementById("tabCrucigrama"),
+          sopita: document.getElementById("tabSopita"),
+        };
 
-        document
-          .getElementById("tabGlobal")
-          .classList.add("bg-gray-200", "text-gray-800");
-        document
-          .getElementById("tabCrucigrama")
-          .classList.add("bg-gray-200", "text-gray-800");
-        document
-          .getElementById("tabRuleta")
-          .classList.add("bg-gray-200", "text-gray-800");
-        document
-          .getElementById("tabSopita")
-          .classList.add("bg-gray-200", "text-gray-800");
+        Object.values(botones).forEach((btn) => {
+          btn.classList.remove("bg-blue-500", "text-white");
+          btn.classList.add("bg-gray-200", "text-gray-800");
+        });
 
-        if (tipo === "global") {
-          document
-            .getElementById("tabGlobal")
-            .classList.remove("bg-gray-200", "text-gray-800");
-          document
-            .getElementById("tabGlobal")
-            .classList.add("bg-blue-500", "text-white");
-        } else if (tipo === "crucigrama") {
-          document
-            .getElementById("tabCrucigrama")
-            .classList.remove("bg-gray-200", "text-gray-800");
-          document
-            .getElementById("tabCrucigrama")
-            .classList.add("bg-blue-500", "text-white");
-        } else if (tipo === "ruleta") {
-          document
-            .getElementById("tabRuleta")
-            .classList.remove("bg-gray-200", "text-gray-800");
-          document
-            .getElementById("tabRuleta")
-            .classList.add("bg-blue-500", "text-white");
-        } else if (tipo === "sopita") {
-          document
-            .getElementById("tabSopita")
-            .classList.remove("bg-gray-200", "text-gray-800");
-          document
-            .getElementById("tabSopita")
-            .classList.add("bg-blue-500", "text-white");
+        let btnSeleccionado;
+        if (tipo === "global") btnSeleccionado = botones.global;
+        else if (tipo === "crucigrama") btnSeleccionado = botones.crucigrama;
+        else if (tipo === "sopita") btnSeleccionado = botones.sopita;
+
+        if (btnSeleccionado) {
+          btnSeleccionado.classList.remove("bg-gray-200", "text-gray-800");
+          btnSeleccionado.classList.add("bg-blue-500", "text-white");
         }
 
+        // 4. Cargamos los datos
         cargarRanking(tipo);
       }
 
       // Cargar ranking
       async function cargarRanking(tipo) {
         let ranking = [];
+        let esGlobal = tipo === "global";
 
-        if (tipo === "global") {
+        if (esGlobal) {
           ranking = await obtenerRankingGlobal(20);
         } else {
           ranking = await obtenerRankingJuego(tipo, 15);
@@ -1363,7 +1322,17 @@
               ? "🥉"
               : `${index + 1}.`;
           const nombre = item.nombre || "Usuario";
-          const puntos = item.puntos_totales || item.puntos;
+          const puntos = esGlobal ? item.puntos_totales || 0 : item.puntos || 0;
+
+          // Mostrar información relevante según el tipo de ranking
+          let infoExtra = "";
+          if (esGlobal && item.juegos_jugados) {
+            infoExtra = `<p class="text-xs text-gray-600">${item.juegos_jugados} juegos</p>`;
+          } else if (!esGlobal && item.partidas) {
+            infoExtra = `<p class="text-xs text-gray-600">${
+              item.partidas
+            } partida${item.partidas > 1 ? "s" : ""}</p>`;
+          }
 
           html += `
             <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3">
@@ -1371,11 +1340,7 @@
                 <span class="text-xl font-bold">${medal}</span>
                 <div>
                   <p class="font-semibold text-gray-800">${nombre}</p>
-                  ${
-                    item.juegos_jugados
-                      ? `<p class="text-xs text-gray-600">${item.juegos_jugados} juegos</p>`
-                      : ""
-                  }
+                  ${infoExtra}
                 </div>
               </div>
               <p class="text-lg font-bold text-blue-600">${puntos}</p>
