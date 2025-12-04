@@ -6,14 +6,117 @@
     <title>Mis Minijuegos</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
+
+      #mainContent.blurred {
+        filter: blur(8px);
+        pointer-events: none;
+      }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="css/main.css" />
   </head>
   <body
     class="bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 min-h-screen p-4 transition-colors duration-200"
   >
-    <div class="max-w-6xl mx-auto">
+    <!-- Modal de Login/Registro -->
+    <div
+      id="loginModal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    >
+      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
+        <div class="text-center mb-6">
+          <div class="text-5xl mb-3">🎮</div>
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">
+            Centro de Juegos
+          </h2>
+          <p class="text-gray-600">Inicia sesión para guardar tu progreso</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-6 border-b border-gray-200">
+          <button
+            id="tabLogin"
+            onclick="cambiarTab('login')"
+            class="flex-1 py-2 px-4 text-center font-semibold border-b-2 border-blue-500 text-blue-600"
+          >
+            Iniciar Sesión
+          </button>
+          <button
+            id="tabRegistro"
+            onclick="cambiarTab('registro')"
+            class="flex-1 py-2 px-4 text-center font-semibold border-b-2 border-transparent text-gray-600 hover:text-gray-800"
+          >
+            Registrarse
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="space-y-4">
+          <input
+            type="email"
+            id="loginEmail"
+            placeholder="tu@email.com"
+            class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            id="loginPassword"
+            placeholder="Contraseña"
+            class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            id="btnLogin"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            Iniciar Sesión
+          </button>
+        </div>
+
+        <!-- Registro Form -->
+        <div id="registroForm" class="space-y-4 hidden">
+          <input
+            type="text"
+            id="registroNombre"
+            placeholder="Tu nombre completo"
+            class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="email"
+            id="registroEmail"
+            placeholder="tu@email.com"
+            class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            id="registroPassword"
+            placeholder="Contraseña (mín. 6 caracteres)"
+            class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            id="registroPasswordConfirm"
+            placeholder="Confirmar contraseña"
+            class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            id="btnRegistro"
+            class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            Crear Cuenta
+          </button>
+        </div>
+
+        <p class="text-center text-gray-600 text-sm mt-4">
+          Tu información se guardará de forma segura en la nube
+        </p>
+      </div>
+    </div>
+
+    <div
+      id="mainContent"
+      class="max-w-6xl mx-auto transition-all duration-300 blurred"
+    >
       <!-- Header -->
       <header class="mb-12 text-center">
         <div class="flex items-center justify-between mb-4">
@@ -54,33 +157,47 @@
           <!-- Sopa de Letras -->
           <a
             href="games/Sopita.html"
-            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-blue-300"
+            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-blue-300 hover:border-l-blue-500 hover:bg-blue-50"
           >
             <div class="text-4xl mb-3">🔤</div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">Sopa de Letras</h3>
             <p class="text-gray-600 text-sm mb-4">
               Encuentra todas las palabras escondidas en la cuadrícula
             </p>
-            <div class="text-blue-500 font-semibold text-sm">Jugar →</div>
+            <div
+              class="text-blue-500 font-semibold text-sm flex items-center gap-1 group"
+            >
+              Jugar
+              <span class="transition-transform group-hover:translate-x-1"
+                >→</span
+              >
+            </div>
           </a>
 
           <!-- Crucigrama -->
           <a
             href="games/Crucigrama.html"
-            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-purple-300"
+            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-purple-300 hover:border-l-purple-500 hover:bg-purple-50"
           >
             <div class="text-4xl mb-3">🧩</div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">Crucigrama</h3>
             <p class="text-gray-600 text-sm mb-4">
               Completa el crucigrama resolviendo pistas y palabras cruzadas
             </p>
-            <div class="text-purple-500 font-semibold text-sm">Jugar →</div>
+            <div
+              class="text-purple-500 font-semibold text-sm flex items-center gap-1 group"
+            >
+              Jugar
+              <span class="transition-transform group-hover:translate-x-1"
+                >→</span
+              >
+            </div>
           </a>
 
           <!-- Ruleta -->
           <a
             href="games/Ruleta.html"
-            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-pink-300"
+            class="bg-white rounded-xl shadow-lg hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-l-4 border-pink-300 hover:border-l-pink-500 hover:bg-pink-50"
           >
             <div class="text-4xl mb-3">🎡</div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">Ruleta</h3>
@@ -88,7 +205,14 @@
               Gira la ruleta y ♫ prueba tu suerte conmigo, pruebate a la suerte
               ♫
             </p>
-            <div class="text-pink-500 font-semibold text-sm">Jugar →</div>
+            <div
+              class="text-pink-500 font-semibold text-sm flex items-center gap-1 group"
+            >
+              Jugar
+              <span class="transition-transform group-hover:translate-x-1"
+                >→</span
+              >
+            </div>
           </a>
         </div>
       </section>
@@ -167,9 +291,14 @@
       <div class="p-6 md:p-8">
         <!-- Header del Panel -->
         <div class="flex items-center justify-between mb-6">
-          <h2 id="panelTitle" class="text-2xl font-bold text-gray-800">
-            Perfil
-          </h2>
+          <button
+            id="btnVolver"
+            onclick="volverMenu()"
+            class="text-gray-500 hover:text-gray-700 text-2xl transition-colors hidden"
+          >
+            ←
+          </button>
+          <div class="flex-1"></div>
           <button
             onclick="cerrarSlide()"
             class="text-gray-500 hover:text-gray-700 text-2xl transition-colors"
@@ -250,11 +379,13 @@
             <!-- Botones de Acción -->
             <div class="border-t border-gray-200 pt-6 space-y-3">
               <button
+                id="btnGuardarPerfil"
                 class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
               >
                 Guardar Cambios
               </button>
               <button
+                id="btnCerrarSesion"
                 class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
               >
                 Cerrar Sesión
@@ -351,7 +482,7 @@
             <div class="space-y-4">
               <!-- Mi Perfil -->
               <button
-                onclick="mostrarSlide('perfil')"
+                onclick="mostrarSubContenido('volver-perfil')"
                 class="w-full bg-white border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-all"
               >
                 <div class="flex items-center justify-between mb-2">
@@ -365,7 +496,7 @@
 
               <!-- Ayuda y Soporte -->
               <button
-                onclick="mostrarSlide('ayuda')"
+                onclick="mostrarSubContenido('ayuda-sub')"
                 class="w-full bg-white border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-all"
               >
                 <div class="flex items-center justify-between mb-2">
@@ -533,7 +664,7 @@
       function mostrarSlide(tipo) {
         const panel = document.getElementById("slidePanel");
         const overlay = document.getElementById("slideOverlay");
-        const title = document.getElementById("panelTitle");
+        const btnVolver = document.getElementById("btnVolver");
         const perfilContent = document.getElementById("perfilContent");
         const ayudaContent = document.getElementById("ayudaContent");
         const estadisticasContent = document.getElementById(
@@ -544,34 +675,77 @@
         );
 
         if (tipo === "perfil") {
-          title.textContent = "👤 Mi Perfil";
           perfilContent.classList.remove("hidden");
           ayudaContent.classList.add("hidden");
           estadisticasContent.classList.add("hidden");
           configuracionContent.classList.add("hidden");
+          btnVolver.classList.add("hidden");
         } else if (tipo === "ayuda") {
-          title.textContent = "ℹ️ Ayuda y Soporte";
           perfilContent.classList.add("hidden");
           ayudaContent.classList.remove("hidden");
           estadisticasContent.classList.add("hidden");
           configuracionContent.classList.add("hidden");
+          btnVolver.classList.add("hidden");
         } else if (tipo === "estadisticas") {
-          title.textContent = "📊 Estadísticas";
           perfilContent.classList.add("hidden");
           ayudaContent.classList.add("hidden");
           estadisticasContent.classList.remove("hidden");
           configuracionContent.classList.add("hidden");
+          btnVolver.classList.add("hidden");
         } else if (tipo === "configuracion") {
-          title.textContent = "⚙️ Configuración";
           perfilContent.classList.add("hidden");
           ayudaContent.classList.add("hidden");
           estadisticasContent.classList.add("hidden");
           configuracionContent.classList.remove("hidden");
+          btnVolver.classList.add("hidden");
         }
 
         // Mostrar panel y overlay
         panel.classList.remove("translate-x-full");
         overlay.classList.remove("hidden");
+      }
+
+      function mostrarSubContenido(tipo) {
+        const btnVolver = document.getElementById("btnVolver");
+        const perfilContent = document.getElementById("perfilContent");
+        const ayudaContent = document.getElementById("ayudaContent");
+        const estadisticasContent = document.getElementById(
+          "estadisticasContent"
+        );
+        const configuracionContent = document.getElementById(
+          "configuracionContent"
+        );
+
+        if (tipo === "volver-perfil") {
+          perfilContent.classList.remove("hidden");
+          ayudaContent.classList.add("hidden");
+          estadisticasContent.classList.add("hidden");
+          configuracionContent.classList.add("hidden");
+          btnVolver.classList.remove("hidden");
+        } else if (tipo === "ayuda-sub") {
+          perfilContent.classList.add("hidden");
+          ayudaContent.classList.remove("hidden");
+          estadisticasContent.classList.add("hidden");
+          configuracionContent.classList.add("hidden");
+          btnVolver.classList.remove("hidden");
+        } else if (tipo === "estadisticas-sub") {
+          perfilContent.classList.add("hidden");
+          ayudaContent.classList.add("hidden");
+          estadisticasContent.classList.remove("hidden");
+          configuracionContent.classList.add("hidden");
+          btnVolver.classList.remove("hidden");
+        }
+      }
+
+      function volverMenu() {
+        const btnVolver = document.getElementById("btnVolver");
+        document.getElementById("perfilContent").classList.add("hidden");
+        document.getElementById("ayudaContent").classList.add("hidden");
+        document.getElementById("estadisticasContent").classList.add("hidden");
+        document
+          .getElementById("configuracionContent")
+          .classList.remove("hidden");
+        btnVolver.classList.add("hidden");
       }
 
       function cerrarSlide() {
@@ -595,6 +769,157 @@
       document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
           cerrarSlide();
+        }
+      });
+    </script>
+
+    <script src="js/supabase-config.js"></script>
+    <script>
+      // Funciones para manejar el blur del modal
+      function mostrarBlur() {
+        document.getElementById("mainContent").classList.add("blurred");
+      }
+
+      function ocultarBlur() {
+        document.getElementById("mainContent").classList.remove("blurred");
+      }
+
+      // Cambiar entre tabs de login/registro
+      function cambiarTab(tab) {
+        const loginForm = document.getElementById("loginForm");
+        const registroForm = document.getElementById("registroForm");
+        const tabLogin = document.getElementById("tabLogin");
+        const tabRegistro = document.getElementById("tabRegistro");
+
+        if (tab === "login") {
+          loginForm.classList.remove("hidden");
+          registroForm.classList.add("hidden");
+          tabLogin.classList.add("border-blue-500", "text-blue-600");
+          tabLogin.classList.remove("border-transparent", "text-gray-600");
+          tabRegistro.classList.remove("border-blue-500", "text-blue-600");
+          tabRegistro.classList.add("border-transparent", "text-gray-600");
+        } else {
+          loginForm.classList.add("hidden");
+          registroForm.classList.remove("hidden");
+          tabRegistro.classList.add("border-blue-500", "text-blue-600");
+          tabRegistro.classList.remove("border-transparent", "text-gray-600");
+          tabLogin.classList.remove("border-blue-500", "text-blue-600");
+          tabLogin.classList.add("border-transparent", "text-gray-600");
+        }
+      }
+
+      // Manejar login
+      document
+        .getElementById("btnLogin")
+        .addEventListener("click", async function () {
+          const email = document.getElementById("loginEmail").value.trim();
+          const password = document
+            .getElementById("loginPassword")
+            .value.trim();
+
+          if (!email || !password) {
+            alert("Por favor completa todos los campos");
+            return;
+          }
+
+          const resultado = await iniciarSesion(email, password);
+          if (resultado.success) {
+            ocultarBlur();
+            document.getElementById("loginModal").classList.add("hidden");
+            actualizarUIConUsuario(resultado.usuario);
+          } else {
+            alert("❌ Error: " + resultado.error);
+          }
+        });
+
+      // Manejar registro
+      document
+        .getElementById("btnRegistro")
+        .addEventListener("click", async function () {
+          const nombre = document.getElementById("registroNombre").value.trim();
+          const email = document.getElementById("registroEmail").value.trim();
+          const password = document
+            .getElementById("registroPassword")
+            .value.trim();
+          const passwordConfirm = document
+            .getElementById("registroPasswordConfirm")
+            .value.trim();
+
+          if (!nombre || !email || !password || !passwordConfirm) {
+            alert("Por favor completa todos los campos");
+            return;
+          }
+
+          if (password.length < 6) {
+            alert("La contraseña debe tener al menos 6 caracteres");
+            return;
+          }
+
+          if (password !== passwordConfirm) {
+            alert("Las contraseñas no coinciden");
+            return;
+          }
+
+          const resultado = await registrarUsuario(email, password, nombre);
+          if (resultado.success) {
+            ocultarBlur();
+            document.getElementById("loginModal").classList.add("hidden");
+            actualizarUIConUsuario(resultado.usuario);
+          } else {
+            alert("❌ Error: " + resultado.error);
+          }
+        });
+
+      // Manejar guardar cambios de perfil
+      document
+        .getElementById("btnGuardarPerfil")
+        .addEventListener("click", async function () {
+          const usuario = obtenerUsuarioActual();
+          if (!usuario) {
+            alert("Debes iniciar sesión primero");
+            return;
+          }
+
+          const nombre = document
+            .querySelector('input[placeholder="Tu nombre"]')
+            .value.trim();
+          const email = document
+            .querySelector('input[placeholder="tu@email.com"]')
+            .value.trim();
+
+          if (!nombre || !email) {
+            alert("Por favor completa todos los campos");
+            return;
+          }
+
+          const actualizado = await actualizarPerfil(usuario.id, {
+            nombre,
+            email,
+          });
+          if (actualizado) {
+            alert("✅ Perfil actualizado correctamente");
+          } else {
+            alert("❌ Error al actualizar perfil");
+          }
+        });
+
+      // Manejar cerrar sesión
+      document
+        .getElementById("btnCerrarSesion")
+        .addEventListener("click", async function () {
+          await cerrarSesion();
+          location.reload();
+        });
+
+      // Verificar si el usuario está logueado al cargar
+      document.addEventListener("DOMContentLoaded", function () {
+        const usuarioGuardado = obtenerUsuarioActual();
+        if (usuarioGuardado) {
+          ocultarBlur();
+          document.getElementById("loginModal").classList.add("hidden");
+          actualizarUIConUsuario(usuarioGuardado);
+        } else {
+          mostrarBlur();
         }
       });
     </script>

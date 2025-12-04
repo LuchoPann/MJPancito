@@ -12,6 +12,15 @@
     <link rel="stylesheet" href="../css/sopita.css" />
   </head>
   <body>
+    <!-- Botón Volver -->
+    <button
+      id="btnVolver"
+      class="fixed top-6 left-6 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg z-40"
+      title="Volver al inicio"
+    >
+      ← Volver
+    </button>
+
     <div
       class="game-container bg-white rounded-2xl shadow-lg p-6 md:p-10 max-w-6xl relative overflow-hidden flex flex-wrap justify-center gap-8"
     >
@@ -41,6 +50,64 @@
       </div>
     </div>
 
+    <!-- Modal de Confirmación -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full transform transition-all">
+        <div class="text-center">
+          <div class="text-4xl mb-4">⚠️</div>
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">¿Deseas volver?</h2>
+          <p class="text-gray-600 mb-6">
+            Si vuelves ahora, perderás tu progreso en el juego actual.
+          </p>
+          <div class="flex gap-3 justify-center">
+            <button
+              id="btnCancelar"
+              class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              id="btnConfirmar"
+              class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+            >
+              Volver al Inicio
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Manejo del botón volver
+      document.getElementById("btnVolver").addEventListener("click", function () {
+        document.getElementById("confirmModal").classList.remove("hidden");
+      });
+
+      document.getElementById("btnCancelar").addEventListener("click", function () {
+        document.getElementById("confirmModal").classList.add("hidden");
+      });
+
+      document.getElementById("btnConfirmar").addEventListener("click", function () {
+        window.location.href = "../index.html";
+      });
+
+      // Cerrar modal al hacer click fuera
+      document.getElementById("confirmModal").addEventListener("click", function (event) {
+        if (event.target === this) {
+          this.classList.add("hidden");
+        }
+      });
+
+      // Cerrar modal con ESC
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          document.getElementById("confirmModal").classList.add("hidden");
+        }
+      });
+    </script>
+
     <script src="../js/sopita.js"></script>
+  </body>
+</html>
   </body>
 </html>
