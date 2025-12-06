@@ -1050,10 +1050,22 @@
           }
 
           const resultado = await registrarUsuario(email, password, nombre);
+
           if (resultado.success) {
-            ocultarBlur();
-            document.getElementById("loginModal").classList.add("hidden");
-            actualizarUIConUsuario(resultado.usuario);
+            // 1. Mostrar mensaje de éxito
+            alert("✅ ¡Cuenta creada con éxito! Por favor inicia sesión.");
+
+            // 2. Limpiar los campos del formulario de registro
+            document.getElementById("registroNombre").value = "";
+            document.getElementById("registroEmail").value = "";
+            document.getElementById("registroPassword").value = "";
+            document.getElementById("registroPasswordConfirm").value = "";
+
+            // 3. "Redirigir" visualmente a la pestaña de Login
+            cambiarTab("login");
+
+            // Opcional: Pre-llenar el email en el login para facilitar las cosas
+            document.getElementById("loginEmail").value = email;
           } else {
             alert("❌ Error: " + resultado.error);
           }
@@ -1366,5 +1378,34 @@
         }
       });
     </script>
+
+    <div
+      id="notificationModal"
+      class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm transition-opacity duration-300"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 transform transition-all scale-100 border-b-4"
+        id="notifCard"
+      >
+        <div class="text-center mb-4">
+          <div id="notifIcon" class="text-6xl mb-2">✨</div>
+          <h3 id="notifTitle" class="text-2xl font-bold text-gray-800">
+            ¡Título!
+          </h3>
+        </div>
+
+        <p id="notifMessage" class="text-gray-600 text-center mb-6">
+          Aquí va el mensaje de la notificación.
+        </p>
+
+        <button
+          onclick="cerrarNotificacion()"
+          id="notifButton"
+          class="w-full py-3 px-4 rounded-xl text-white font-bold shadow-lg transform active:scale-95 transition-all"
+        >
+          Entendido
+        </button>
+      </div>
+    </div>
   </body>
 </html>

@@ -25,7 +25,7 @@ function guardarUsuarioActual(usuario) {
 // Registrar nuevo usuario con contraseña
 async function registrarUsuario(email, contraseña, nombre) {
   try {
-    // Registrarse con Supabase Auth
+    // 1. Registrarse con Supabase Auth
     const {
       data: { user },
       error: authError,
@@ -41,12 +41,10 @@ async function registrarUsuario(email, contraseña, nombre) {
 
     if (authError) throw authError;
 
-    console.log("Usuario auth creado:", user.id);
-
-    // Crear perfil del usuario en tabla usuarios
+    // 2. Crear o actualizar perfil (usando upsert para evitar errores de duplicados)
     const { data: perfil, error: profileError } = await supabaseClient
       .from("usuarios")
-      .insert([
+      .upsert([
         {
           id: user.id,
           email: email,
@@ -58,29 +56,16 @@ async function registrarUsuario(email, contraseña, nombre) {
       .single();
 
     if (profileError) {
-      console.error("Error RLS detallado:", profileError);
+      console.error("Error creando perfil:", profileError);
       throw profileError;
     }
 
-    console.log("Perfil creado:", perfil);
+    // 3. CAMBIO: En lugar de auto-login, cerramos sesión por seguridad
+    // Esto asegura que el usuario deba ingresar sus credenciales manualmente en el siguiente paso.
+    await supabaseClient.auth.signOut();
 
-    // Intentar hacer login automático después del registro
-    const {
-      data: { user: loginUser },
-      error: loginError,
-    } = await supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: contraseña,
-    });
-
-    if (!loginError && loginUser) {
-      guardarUsuarioActual(perfil);
-      return { success: true, usuario: perfil };
-    } else {
-      // Si login automático falla, devolver el usuario del registro
-      guardarUsuarioActual(perfil);
-      return { success: true, usuario: perfil };
-    }
+    // Retornamos éxito, pero sin usuario activo
+    return { success: true };
   } catch (error) {
     console.error("Error registrando usuario:", error);
     return { success: false, error: error.message };
